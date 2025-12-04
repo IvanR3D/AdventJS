@@ -3,5 +3,5 @@
  * @returns {string[]} An array with the unique filtered gifts
  */
 function filterGifts(gifts) {
-  return gifts.filter((gift) => !gift.includes("#"));
+  return gifts.filter(gift => !gift.includes('#'));
 }
