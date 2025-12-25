@@ -1,32 +1,40 @@
-/**
- * @param {string} code - The magical program to execute
- * @returns {number} - The final value after executing the program
- */
 function execute(code) {
-    const jumpMap = new Map();
-    const stack = [];
-    for (let i = 0; i < code.length; i++) {
-        const char = code[i];
-        if (char === '[' || char === '{') {
-            stack.push({ char, index: i });
-        } else if (char === ']' || char === '}') {
-            const opening = stack.pop();
-            jumpMap.set(opening.index, i);
-            jumpMap.set(i, opening.index);
-        }
-    }
-    let result = 0;
-    const handlers = {
-        '[': (i) => (result === 0 ? jumpMap.get(i) : i),
-        '{': (i) => (result === 0 ? jumpMap.get(i) : i),
-        ']': (i) => (result !== 0 ? jumpMap.get(i) : i),
-        '+': (i) => { result++; return i; },
-        '-': (i) => { result--; return i; }
-    };
+  let value = 0;
+  let ip = 0;
+  const matches = {};
+  const stack = [];
+  const len = code.length; // Cache length
 
-    for (let i = 0; i < code.length; i++) {
-        const handler = handlers[code[i]];
-        if (handler) { i = handler(i); }
+  // Preprocessing loop
+  for (let i = 0; i < len; i++) {
+    const char = code[i];
+    if (char === "[" || char === "{") {
+      stack.push(i);
+    } else if (char === "]" || char === "}") {
+      const start = stack.pop();
+      matches[start] = i;
+      matches[i] = start;
     }
-    return result;
+  }
+
+  // Execution loop - optimized
+  while (ip < len) {
+    const char = code[ip];
+    if (char === "+") {
+      value++;
+    } else if (char === "-") {
+      value--;
+    } else if (char === "[" || char === "{") {
+      if (value === 0) {
+        ip = matches[ip];
+      }
+    } else if (char === "]") {
+      if (value !== 0) {
+        ip = matches[ip];
+      }
+    }
+    ip++;
+  }
+
+  return value;
 }
